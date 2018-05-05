@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>learn ajax</title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.5.17-beta.0/vue.min.js"></script>
+</head>
+<body>
+    <h1>ajax 获取数据之后，将数据进行渲染</h1>
+    <h2>jq DOM 渲染</h2>
+    <table class="table1"></table>
+    <h2>Vue 渲染</h2>
+    <div id="app">
+        <div>
+            <table>
+                <tr v-for="(item, index) in movie" :key="index">
+                    <td>标题：{{item.title}}</td>
+                    <td><img :src="item.images.small" width="80" alt=""></td>
+                    <td>年份：{{item.year}}</td>
+                    <td>豆瓣平均分：{{item.rating.average}}</td>
+                    <td>类型：{{item.genres}}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        $.ajax({
+            type: "GET", //提交方式 
+            dataType: 'jsonp',
+            headers: {
+            },
+            url: "https://api.douban.com//v2/movie/top250",//路径 
+            data: {},//数据，这里使用的是Json格式进行传输 
+            success: function (result) {//返回数据根据结果进行相应的处理 
+                console.log(result);
+                data = result;
+                var table = $(".table1");
+                for (var val of data.subjects) {
+                    // console.log(val)
+                    var row = $("<tr></tr>");
+                    row.append($("<td></td>").html("标题：" + val.title))
+                    row.append($('<td></td>').append($("<img width='80'>").attr("src", val.images.small)))
+                    row.append($("<td></td>").html("年份：" + val.year))
+                    row.append($("<td></td>").html("豆瓣平均分：" + val.rating.average))
+                    row.append($("<td></td>").html("类型：" + val.genres))
+                    table.append(row)
+                }
+            }
+        });
+
+        var app = new Vue({
+            el: '#app',
+            data() {
+                return {
+                    movie: [],
+                }
+            },
+            mounted() {
+                var v_this = this;
+                this.$nextTick(function () {
+                    $.ajax({
+                        type: "GET", //提交方式 
+                        dataType: 'jsonp',
+                        headers: {
+                        },
+                        url: "https://api.douban.com//v2/movie/top250",//路径 
+                        data: {},//数据，这里使用的是Json格式进行传输 
+                        success: function (result) {//返回数据根据结果进行相应的处理 
+                            v_this.movie = result.subjects;
+                        }
+                    });
+                })
+            }
+        })
+    </script>
+</body>
+</html>
